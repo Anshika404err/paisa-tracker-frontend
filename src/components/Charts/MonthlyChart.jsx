@@ -26,7 +26,7 @@ const MonthlyChart = ({ monthlyData,thememode }) => {
 
     // ---------- object according to theme -------------- 
 
-  const colors = thememode === 'dark' ? darkTheme : lightTheme;
+  const colors = thememode == 'dark' ? darkTheme : lightTheme;
 
 
   const data = {
@@ -78,7 +78,7 @@ const MonthlyChart = ({ monthlyData,thememode }) => {
  
 
   return(
-    <div className='w-100 h-auto p-4 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode==='dark'? "#2c3034" : "white"}}>
+    <div className='w-100 h-auto p-4 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode=='dark'? "#2c3034" : "white"}}>
   <p className='w-full text-center font-bold'>Monthly Statistics</p>
   <Bar data={data} options={options}/>
   </div>

@@ -31,7 +31,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
 
     const getGroup = async () => {
         try {
-            const res = await axios.get(`http://localhost:3001/api/group/getgroup/${id}`);
+            const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/group/getgroup/${id}`);
             setGroupData(res.data);
         } catch (err) {
             console.log(err);
@@ -40,7 +40,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
 
     const handleInputChange = (index, fieldName, value) => {
         const updatedInputFields = [...inputFields];
-        if (fieldName === 'paidFor') {
+        if (fieldName == 'paidFor') {
             const newPaidFor = [...updatedInputFields[index][fieldName]];
             if (newPaidFor.includes(value)) {
                 newPaidFor.splice(newPaidFor.indexOf(value), 1);
@@ -94,7 +94,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
         const outputArray = Object.values(resultMap);
         const simplify = async () => {
             try {
-                const res = await axios.post(`http://localhost:3001/api/group/simplifyDebt/${id}`, { outputArray });
+                const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/group/simplifyDebt/${id}`, { outputArray });
                 setData(res.data);
             } catch (err) {
                 console.log(err);
@@ -107,7 +107,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
     useEffect(() => {
         const getDebts = async () => {
             try {
-                const res = await axios.get(`http://localhost:3001/api/group/getDebts/${id}`);
+                const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/group/getDebts/${id}`);
                 setData(res.data);
             } catch (err) {
                 console.log(err);
@@ -122,7 +122,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
 
     const handleAddComment = async () => {
         try {
-            const res = await axios.post(`http://localhost:3001/api/group/addcomment`, {
+            const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/group/addcomment`, {
                 userId: user._id,
                 text: commentText,
                 groupId: id,
@@ -137,7 +137,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
 
     const getComments = async () => {
         try {
-            const response = await axios.get(`http://localhost:3001/api/group/getcomments/${id}`);
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/group/getcomments/${id}`);
             setComments(response.data.commentss);
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -150,7 +150,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
 
     const getMembers = async () => {
         try {
-            const res = await axios.get(`http://localhost:3001/api/group/getmembers/${id}`);
+            const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/group/getmembers/${id}`);
             setMembersData(res.data);
         } catch (err) {
             console.log(err);
@@ -197,7 +197,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
                     </CopyToClipboard>
                     <Tooltip title="View members" arrow>
                         <button onClick={handleShowPart} className='p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700'>
-                            <PeopleAltIcon sx={{ color: thememode === 'dark' ? 'white' : 'black' }} />
+                            <PeopleAltIcon sx={{ color: thememode == 'dark' ? 'white' : 'black' }} />
                         </button>
                     </Tooltip>
                 </div>
@@ -276,10 +276,10 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
                                 {data.map(debt => (
                                     <div key={debt[0]} className='flex items-center bg-gray-300 rounded-2xl justify-between m-2 w-[95%] dark:bg-[#282828] text-sm'>
                                         <div className='w-[60%] flex align-middle p-3'>{debt[0]}{" "} &#8594; {debt[1]} {" "}&#x20B9;{debt[2]}</div>
-                                        {user?.username === debt[1] && (
+                                        {user?.username == debt[1] && (
                                             <button onClick={async () => {
                                                 try {
-                                                    const res = await axios.post(`http://localhost:3001/api/group/approveDebt/${id}`, debt);
+                                                    const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/group/approveDebt/${id}`, debt);
                                                     setData(res.data.simplifyDebt);
                                                     console.log(res.data);
                                                 } catch (err) {
@@ -287,10 +287,10 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
                                                 }
                                             }}
                                                 className='bg-[#000080] p-1 rounded-md text-white m-2'>
-                                                {debt[3] === true ? "Approved" : "Approve"}
+                                                {debt[3] == true ? "Approved" : "Approve"}
                                             </button>
                                         )}
-                                        {user?.username === debt[0] && debt[3] === true && <div>Approved by {debt[1]}✅</div>}
+                                        {user?.username == debt[0] && debt[3] == true && <div>Approved by {debt[1]}✅</div>}
                                     </div>
                                 ))}
                             </div>
@@ -320,7 +320,7 @@ const SimplifyDebt = ({ user, thememode, toggle }) => {
                 <div className="mt-4 mb-20">
                     {comments.map((comment) => (
                         <div key={comment._id} className="rounded-full text-sm w-[70%] bg-[#d1d5db] dark:bg-[#282828] dark:text-white">
-                            <p className='px-3 py-2'>{comment?.username === user?.username ? 'You' : comment?.username}: {comment.text}</p>
+                            <p className='px-3 py-2'>{comment?.username == user?.username ? 'You' : comment?.username}: {comment.text}</p>
                         </div>
                     ))}
                 </div>

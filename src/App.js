@@ -32,7 +32,7 @@ function App() {
 
   //function to toggle between light and dark mode
   const toggle = () => {
-    const newTheme = thememode === 'light' ? 'dark' : 'light';
+    const newTheme = thememode == 'light' ? 'dark' : 'light';
     setThememode(newTheme);
     console.log(newTheme)
     localStorage.setItem('theme', newTheme);

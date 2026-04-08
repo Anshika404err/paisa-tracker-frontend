@@ -107,7 +107,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
               fontFamily: 'poppins',
               fontWeight: 700,
               letterSpacing: '.1rem',
-            color: thememode === 'dark' ? 'white' : '#000080',
+            color: thememode == 'dark' ? 'white' : '#000080',
             cursor: 'pointer',
               textDecoration: 'none',
             }}
@@ -120,7 +120,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                 onClick={()=>{navigate("/dues")}}
                 sx={{
                     my: 2,
-                    color: thememode === 'dark' ? 'white' : '#000080',    
+                    color: thememode == 'dark' ? 'white' : '#000080',    
                     display: 'block',
                     position: 'relative',
                     '&::after': {
@@ -128,7 +128,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                       position: 'absolute',
                       width: '100%',
                       height: '2px',
-                      backgroundColor: thememode==='dark'?'white':'#000080',
+                      backgroundColor: thememode=='dark'?'white':'#000080',
                       bottom: '-2px',
                       left: 0,
                       transform: 'scaleX(0)',
@@ -148,7 +148,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                 onClick={()=>{navigate("/groups")}}
                 sx={{
                     my: 2,
-                    color: thememode === 'dark' ? 'white' : '#000080',
+                    color: thememode == 'dark' ? 'white' : '#000080',
                     display: 'block',
                     position: 'relative',
                     '&::after': {
@@ -156,7 +156,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                       position: 'absolute',
                       width: '100%',
                       height: '2px',
-                      backgroundColor: thememode==='dark'?'white':'#000080',
+                      backgroundColor: thememode=='dark'?'white':'#000080',
                       bottom: '-4px', // Adjust this value to move the underline up or down
                       left: 0,
                       transform: 'scaleX(0)',
@@ -176,7 +176,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                 onClick={()=>{navigate("/savings")}}
                 sx={{
                     my: 2,
-                    color: thememode === 'dark' ? 'white' : '#000080',   
+                    color: thememode == 'dark' ? 'white' : '#000080',   
                     display: 'block',
                     position: 'relative',
                     '&::after': {
@@ -184,7 +184,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                       position: 'absolute',
                       width: '100%',
                       height: '2px',
-                      backgroundColor: thememode==='dark'?'white':'#000080',
+                      backgroundColor: thememode=='dark'?'white':'#000080',
                       bottom: '-4px', // Adjust this value to move the underline up or down
                       left: 0,
                       transform: 'scaleX(0)',
@@ -204,7 +204,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                 onClick={()=>{navigate("/charts")}}
                 sx={{
                     my: 2,
-                    color: thememode === 'dark' ? 'white' : '#000080',
+                    color: thememode == 'dark' ? 'white' : '#000080',
                     display: 'block',
                     position: 'relative',
                     '&::after': {
@@ -212,7 +212,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                       position: 'absolute',
                       width: '100%',
                       height: '2px',
-                      backgroundColor: thememode==='dark'?'white':'#000080',
+                      backgroundColor: thememode=='dark'?'white':'#000080',
                       bottom: '-4px', // Adjust this value to move the underline up or down
                       left: 0,
                       transform: 'scaleX(0)',
@@ -232,7 +232,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                 onClick={()=>{navigate("/stocks")}}
                 sx={{
                     my: 2,
-            color: thememode === 'dark' ? 'white' : '#000080',
+            color: thememode == 'dark' ? 'white' : '#000080',
 
                     display: 'block',
                     position: 'relative',
@@ -241,7 +241,7 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
                       position: 'absolute',
                       width: '100%',
                       height: '2px',
-                      backgroundColor: thememode==='dark'?'white':'#000080',
+                      backgroundColor: thememode=='dark'?'white':'#000080',
                       bottom: '-4px', // Adjust this value to move the underline up or down
                       left: 0,
                       transform: 'scaleX(0)',
@@ -262,12 +262,12 @@ function ResponsiveAppBar({thememode,toggle,setUser,user,setFlag,flag}) {
           <LightModeIcon 
           onClick={toggle}
           sx={{
-            color: thememode === 'dark' ? 'white' : 'inherit',
+            color: thememode == 'dark' ? 'white' : 'inherit',
             cursor: 'pointer'
           }}
           />
             <MailOutlineIcon sx={{mx: 2,
-            color: thememode === 'dark' ? 'white' : 'inherit',
+            color: thememode == 'dark' ? 'white' : 'inherit',
             cursor: 'pointer'
              }}
              onClick={()=>{navigate("/inbox")}}

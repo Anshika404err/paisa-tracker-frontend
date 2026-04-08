@@ -1,43 +1,41 @@
 import React, { useState } from 'react'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import './SignUp.css'
 import axios from "axios"
 import { useNavigate } from 'react-router-dom'
-import {auth,provider} from "../firebase.js"
-import {signInWithPopup} from "firebase/auth"
+import { auth, provider } from "../firebase.js"
+import { signInWithPopup } from "firebase/auth"
 import GoogleButton from 'react-google-button'
 
-function Signup({user,setUser}) 
-{
+function Signup({ user, setUser }) {
   const navigate = useNavigate()
 
-  const [password,setPassword]=useState("")
-  const [username,setUsername]=useState("")
-  const [email,setEmail]=useState("")
-  const [confirmpass,setConformpass]=useState("")
-  const [entries,setEntries]=useState([])
-  const [isPass,isPassValid]=useState(false)
-  const [isUsername,isUsernameValid]=useState(false)
+  const [password, setPassword] = useState("")
+  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
+  const [confirmpass, setConformpass] = useState("")
+  const [entries, setEntries] = useState([])
+  const [isPass, isPassValid] = useState(false)
+  const [isUsername, isUsernameValid] = useState(false)
 
-//  -------------- function to handle password change ----------------------- 
+  //  -------------- function to handle password change ----------------------- 
   const handlePasswordChange = (event) => {
     event.preventDefault();
     const newPassword = event.target.value;
-     if(newPassword.length <8)
-     {
+    if (newPassword.length < 8) {
       setPassword(false);
-     }
-     
+    }
+
     setPassword(newPassword);
     isPassValid(newPassword.length >= 8);
   };
-  
-  const handleEmail=(event)=>{
-    const k=event.target.value;
-    setEmail(k);
- }
 
-//  -------------------- function to handle the username change ------------------ 
+  const handleEmail = (event) => {
+    const k = event.target.value;
+    setEmail(k);
+  }
+
+  //  -------------------- function to handle the username change ------------------ 
   const handleUsernameChange = (event) => {
     event.preventDefault();
     const newUsername = event.target.value;
@@ -45,53 +43,53 @@ function Signup({user,setUser})
     isUsernameValid(newUsername.length >= 5);
   };
   // --------------------------- function to check confirm ------------------ 
-  const confirm=(event)=>{
+  const confirm = (event) => {
     event.preventDefault();
-    const k=event.target.value
+    const k = event.target.value
     setConformpass(k)
   }
 
-  const emptyConfirmpass=()=>{
-   
+  const emptyConfirmpass = () => {
+
     setConformpass("");
   }
 
 
   //Google OAuth function
-  const googlelogin = (req,res)=>{
+  const googlelogin = (req, res) => {
 
-    signInWithPopup(auth,provider).then((result)=>{
+    signInWithPopup(auth, provider).then((result) => {
       console.log(result);
       axios
-            .post("http://localhost:3001/api/auth/google", {
-              username: result.user.displayName,
-              email: result.user.email,
-              img: result.user.photoURL,
-            })
-            .then((res) => {
-              console.log(res.data)
-              setUser(res.data)
-            localStorage.setItem('user', JSON.stringify(res.data))
-              navigate("/dashboard")
-            });
-    }).catch((err)=>{console.log(err)})
+        .post(`${process.env.REACT_APP_BASE_URL}/api/auth/google`, {
+          username: result.user.displayName,
+          email: result.user.email,
+          img: result.user.photoURL,
+        })
+        .then((res) => {
+          console.log(res.data)
+          setUser(res.data)
+          localStorage.setItem('user', JSON.stringify(res.data))
+          navigate("/dashboard")
+        });
+    }).catch((err) => { console.log(err) })
   }
 
   // -------------------- function to handle submit ----------------------- 
   const submitFunction = async (event) => {
     event.preventDefault();
-  
-    if (isPass && isUsername && confirmpass === password) {
+
+    if (isPass && isUsername && confirmpass == password) {
       const Entry = { username: username, password: password, email: email };
       setEntries([entries, Entry]);
-  
+
       try {
-        const res = await axios.post("http://localhost:3001/api/auth/signup", {
+        const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/auth/signup`, {
           username,
           email,
           password,
         });
-  
+
         console.log(res.data);
         setUser(res.data.newUser);
         console.log(user);
@@ -106,7 +104,7 @@ function Signup({user,setUser})
         console.log(confirmpass);
         alert("Logged in successfully");
       } catch (err) {
-        if (err.response && err.response.status === 400) {
+        if (err.response && err.response.status == 400) {
           alert("Username already exists. Please choose a different username.");
         } else {
           console.log(err);
@@ -120,19 +118,19 @@ function Signup({user,setUser})
       }
     }
   };
-  
-  
+
+
   return (
     <form action="" onSubmit={submitFunction}>
       <div className="super-container">
-    <div className="container-signup">
+        <div className="container-signup">
 
           <div className="title">
             Sign Up
           </div>
 
           <div className="content">
-         
+
             <div className="user-details">
 
               <div className="input-box">
@@ -159,7 +157,7 @@ function Signup({user,setUser})
                   onChange={handleEmail}
                   required
                 />
-              {console.log(email)}
+                {console.log(email)}
               </div>
 
               <div className="input-box">
@@ -191,28 +189,28 @@ function Signup({user,setUser})
             </div>
 
             <div className="btn-signup">
-            <div 
-            className="button"
-            value="Submit"
-            onClick={submitFunction}
-            >
-              Submit
+              <div
+                className="button"
+                value="Submit"
+                onClick={submitFunction}
+              >
+                Submit
 
-              {/* ----------------- signup with google -----------------------  */}
+                {/* ----------------- signup with google -----------------------  */}
+              </div>
+              <GoogleButton onClick={googlelogin} />
             </div>
-            <GoogleButton  onClick={googlelogin}/>  
-            </div>
-            
+
             <div className="forgotPass">
-           <div>Already have an account? </div>
+              <div>Already have an account? </div>
               <div> <Link to="/login">
                 Login
-            </Link></div>
+              </Link></div>
             </div>
+          </div>
         </div>
       </div>
-      </div>
-        </form>
+    </form>
   )
 }
 
