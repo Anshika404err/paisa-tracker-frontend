@@ -1,37 +1,36 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
+import {
+  AppBar, Box, Toolbar, IconButton, Typography,
+  Menu, Container, Avatar, Button, MenuItem
+} from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import MenuIcon from '@mui/icons-material/Menu';
+
+const pages = ['Dues', 'Groups', 'Savings', 'Charts', 'Stocks'];
 
 const theme = createTheme({
   palette: {
     purple: {
       main: '#8656cd',
-      light: '#E9DB5D',
-      dark: '#A29415',
-      contrastText: '#242105',
     },
   },
 });
 
 function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
+
   const navigate = useNavigate();
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  // ✅ FIXED: moved inside component
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const [navuser, setNavuser] = useState({});
 
-  // ------------ hook to handle the user details ------------------ 
+  // ✅ user sync
   useEffect(() => {
     const check = async () => {
       try {
@@ -39,20 +38,23 @@ function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
         if (loggedInUser) {
           const foundUser = JSON.parse(loggedInUser);
           setNavuser(foundUser);
-          await setUser(foundUser);
+          setUser(foundUser);
         }
       } catch (err) {
         console.error(err);
       }
     };
     check();
-  }, [user?._id, flag, setUser]); // Added setUser to dependencies
+  }, [user?._id, flag]);
 
-  // ------------- function to logout ----------------------- 
-  function Logout() {
-    localStorage.clear();
-    navigate('/login');
-  }
+  // -------- handlers ----------
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -62,59 +64,67 @@ function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
     setAnchorElUser(null);
   };
 
+  function Logout() {
+    localStorage.clear();
+    navigate('/login');
+  }
+
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="static" color="transparent" sx={{ boxShadow: 'none', elevation: 0 }}>
+      <AppBar position="static" sx={{ background: 'transparent', boxShadow: 'none' }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            {/* Added alt prop for accessibility */}
-            <img src="favicon.ico" alt="Paisa Vasooli Logo" style={{ height: "50px" }} />
-            
+
+            {/* LOGO */}
+            <img src="favicon.ico" alt="logo" style={{ height: "40px" }} />
+
+            {/* TITLE (hidden on mobile) */}
             <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              onClick={() => { navigate("/dashboard") }}
+              onClick={() => navigate("/dashboard")}
               sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'poppins',
+                ml: 1,
                 fontWeight: 700,
-                letterSpacing: '.1rem',
-                color: thememode === 'dark' ? 'white' : '#000080',
                 cursor: 'pointer',
-                textDecoration: 'none',
+                display: { xs: 'none', md: 'flex' },
+                color: thememode === 'dark' ? 'white' : '#000080'
               }}
             >
               Paisa Vasooli
             </Typography>
 
+            {/* 📱 MOBILE MENU */}
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+              <IconButton onClick={handleOpenNavMenu}>
+                <MenuIcon sx={{ color: thememode === 'dark' ? 'white' : 'black' }} />
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorElNav}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+              >
+                {pages.map((page) => (
+                  <MenuItem
+                    key={page}
+                    onClick={() => {
+                      navigate(`/${page.toLowerCase()}`);
+                      handleCloseNavMenu();
+                    }}
+                  >
+                    {page}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+
+            {/* 💻 DESKTOP MENU */}
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {['Dues', 'Groups', 'Savings', 'Charts', 'Stocks'].map((page) => (
+              {pages.map((page) => (
                 <Button
                   key={page}
-                  onClick={() => { navigate(`/${page.toLowerCase()}`) }}
+                  onClick={() => navigate(`/${page.toLowerCase()}`)}
                   sx={{
-                    my: 2,
-                    color: thememode === 'dark' ? 'white' : '#000080',
-                    display: 'block',
-                    position: 'relative',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      width: '100%',
-                      height: '2px',
-                      backgroundColor: thememode === 'dark' ? 'white' : '#000080',
-                      bottom: '-2px',
-                      left: 0,
-                      transform: 'scaleX(0)',
-                      transformOrigin: 'bottom right',
-                      transition: 'transform 0.25s ease-out',
-                    },
-                    '&:hover::after': {
-                      transform: 'scaleX(1)',
-                      transformOrigin: 'bottom left',
-                    },
+                    color: thememode === 'dark' ? 'white' : '#000080'
                   }}
                 >
                   {page}
@@ -122,54 +132,39 @@ function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
               ))}
             </Box>
 
-            <Box sx={{ flexGrow: 0 }}>
+            {/* RIGHT SIDE ICONS */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+
               <LightModeIcon
                 onClick={toggle}
-                sx={{
-                  color: thememode === 'dark' ? 'white' : 'inherit',
-                  cursor: 'pointer',
-                  verticalAlign: 'middle'
-                }}
+                sx={{ cursor: 'pointer', color: thememode === 'dark' ? 'white' : 'black' }}
               />
+
               <MailOutlineIcon
-                sx={{
-                  mx: 2,
-                  color: thememode === 'dark' ? 'white' : 'inherit',
-                  cursor: 'pointer',
-                  verticalAlign: 'middle'
-                }}
-                onClick={() => { navigate("/inbox") }}
+                onClick={() => navigate("/inbox")}
+                sx={{ cursor: 'pointer', color: thememode === 'dark' ? 'white' : 'black' }}
               />
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={navuser?.name || "User"} src={navuser?.image || 'ProfileImg.jpeg'} />
+
+              <IconButton onClick={handleOpenUserMenu}>
+                <Avatar
+                  alt={navuser?.name || "User"}
+                  src={navuser?.image || 'ProfileImg.jpeg'}
+                />
               </IconButton>
+
+              {/* USER MENU */}
               <Menu
-                sx={{ mt: '45px' }}
-                id="menu-appbar"
                 anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                <MenuItem key="Profile" onClick={() => { navigate("/profile"); handleCloseUserMenu(); }}>
-                  <Typography textAlign="center">Profile</Typography>
-                </MenuItem>
-                <MenuItem key="Vault" onClick={() => { navigate("/vault"); handleCloseUserMenu(); }}>
-                  <Typography textAlign="center">Vault</Typography>
-                </MenuItem>
-                <MenuItem key="Logout" onClick={Logout}>
-                  <Typography textAlign="center">Logout</Typography>
-                </MenuItem>
+                <MenuItem onClick={() => navigate("/profile")}>Profile</MenuItem>
+                <MenuItem onClick={() => navigate("/vault")}>Vault</MenuItem>
+                <MenuItem onClick={Logout}>Logout</MenuItem>
               </Menu>
+
             </Box>
+
           </Toolbar>
         </Container>
       </AppBar>
