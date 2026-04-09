@@ -24,7 +24,7 @@ const CategoryChart = ({ allCategories, categoryData, thememode }) => {
 
   // ---------- object according to theme -------------- 
 
-  const theme = thememode == 'dark' ? darkTheme : lightTheme;
+  const theme = thememode === 'dark' ? darkTheme : lightTheme;
   
 
   const data = {
@@ -84,7 +84,7 @@ const CategoryChart = ({ allCategories, categoryData, thememode }) => {
   // ------------ Pie Chart component --------------------- 
 
   return (
-  <div className='w-[400px] h-[500px] p-6 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode=='dark'? "#2c3034" : "white"}}>
+  <div className='w-[400px] h-[500px] p-6 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode==='dark'? "#2c3034" : "white"}}>
   <p className='w-full text-center font-bold'>Category wise data</p>
   <Pie data={data} options={options} option={option} />
   </div>
@@ -100,7 +100,7 @@ const generateColors = (count, thememode) => {
 
   const generateColor = (index) => {
     const hue = (index * (360 / count)) % 360;
-    const lightness = thememode == 'dark' ? 25 : 75;
+    const lightness = thememode === 'dark' ? 25 : 75;
     return `hsl(${hue}, 100%, ${lightness}%)`;
   };
 

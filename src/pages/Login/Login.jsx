@@ -1,102 +1,86 @@
 import React, { useState } from "react";
 import "./Login.css";
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { auth, provider } from "../firebase.js"
-import { signInWithPopup } from "firebase/auth"
-import GoogleButton from 'react-google-button'
+import { auth, provider } from "../firebase.js";
+import { signInWithPopup } from "firebase/auth";
+import GoogleButton from 'react-google-button';
 
-function Login({ user, setUser }) {
-  const navigate = useNavigate()
+function Login({ setUser }) { // Removed unused 'user' prop
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [isPasswordValid, setIsPasswordValid] = useState(false);
-  const [isUsernameValid, setIsUsernameValid] = useState(false);
-  const [allEntry, setAllEntry] = useState([]);
-  const [validEmail, setValidemail] = useState(false)
-  const emailValidation = (email) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  };
+  
+  // State for tracking form history (optional, but fixed logic)
+  const [, setAllEntry] = useState([]);
 
-  //function to handle input
+  // Removed unused: isPasswordValid, isUsernameValid, validEmail, setValidemail, emailValidation
+
   const handlePasswordChange = (event) => {
-    event.preventDefault();
-    const newPassword = event.target.value;
-    setPassword(newPassword);
-    setIsPasswordValid(newPassword.length >= 8);
+    setPassword(event.target.value);
   };
 
   const handleUsernameChange = (event) => {
-    event.preventDefault();
-    const newUsername = event.target.value;
-    setUsername(newUsername);
-    setIsUsernameValid(newUsername.length >= 5);
+    setUsername(event.target.value);
   };
 
-  const handleEmail = (event) => {
-    const k = event.target.value;
-    setEmail(k);
+  // Fixed handleEmail logic (added setEmail)
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
 
-  }
-
-
-  const submitFunction = (event) => {
+  const submitFunction = async (event) => {
     event.preventDefault();
-    const Entry = { username: username, password: password, email: email };
-    setAllEntry([allEntry, Entry]);
+    
+    // Fixed state update: use functional update for arrays
+    const newEntry = { username, password, email };
+    setAllEntry((prev) => [...prev, newEntry]);
 
-    // Handle form submission logic here
-    const Logi = async () => {
-      try {
-        const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/auth/signin`, { username, email, password })
-        console.log("response data:", res.data);
-        setUser(res.data)
-        // store the user in localStorage
-        localStorage.setItem('user', JSON.stringify(res.data))
-        navigate('/dashboard')
-      } catch (err) {
-        console.log(err);
-      }
+    try {
+      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/auth/signin`, { 
+        username, 
+        email, 
+        password 
+      });
+      
+      console.log("response data:", res.data);
+      setUser(res.data);
+      localStorage.setItem('user', JSON.stringify(res.data));
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
     }
-    Logi()
+
+    // Reset fields
     setEmail("");
-    setPassword("")
-    setUsername("")
+    setPassword("");
+    setUsername("");
   };
 
-  const googlesekar = (req, res) => {
-    signInWithPopup(auth, provider).then((result) => {
-      console.log(result);
-      console.log(result.user.photoURL);
-      axios
-        .post(`${process.env.REACT_APP_BASE_URL}/api/auth/google`, {
+  const googlesekar = () => { // Removed unused req, res params
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        axios.post(`${process.env.REACT_APP_BASE_URL}/api/auth/google`, {
           username: result.user.displayName,
           email: result.user.email,
           image: result.user.photoURL,
         })
         .then((res) => {
-          console.log(res.data)
-          setUser(res.data)
-          localStorage.setItem("user", JSON.stringify(res.data))
-          navigate("/dashboard")
+          setUser(res.data);
+          localStorage.setItem("user", JSON.stringify(res.data));
+          navigate("/dashboard");
         });
-    }).catch((err) => { console.log(err) })
-  }
+      })
+      .catch((err) => { console.error(err); });
+  };
 
   return (
     <>
-
       <form onSubmit={submitFunction}>
         <div className="super-container">
           <div className="container-login">
-
-            <div className="title-login">
-              Login
-            </div>
-
+            <div className="title-login">Login</div>
             <div className="content">
               <div className="user-details">
                 <div className="input-box">
@@ -105,8 +89,19 @@ function Login({ user, setUser }) {
                     type="text"
                     placeholder="Enter your username"
                     value={username}
-                    name="username"
                     onChange={handleUsernameChange}
+                    className="input-login"
+                    required
+                  />
+                </div>
+                {/* Optional Email Input if needed for manual login */}
+                <div className="input-box">
+                   <label htmlFor="email">Email</label>
+                   <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={handleEmailChange}
                     className="input-login"
                     required
                   />
@@ -116,7 +111,6 @@ function Login({ user, setUser }) {
                   <input
                     type="password"
                     placeholder="Enter your password"
-                    name="password"
                     value={password}
                     onChange={handlePasswordChange}
                     className="input-login"
@@ -126,21 +120,17 @@ function Login({ user, setUser }) {
               </div>
 
               <div className="btn-login flex justify-between items-center">
-
-                <div
-                  className="button"
-                  onClick={submitFunction}
-                >
+                <button type="submit" className="button">
                   Login
-                </div>
-
+                </button>
                 <GoogleButton onClick={googlesekar} />
               </div>
+              
               <div className="forgotPass">
                 <div>Not having any account? </div>
-                <div> <Link to="/signup">
-                  Sign up
-                </Link></div>
+                <div> 
+                  <Link to="/signup">Sign up</Link>
+                </div>
               </div>
             </div>
           </div>

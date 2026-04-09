@@ -17,7 +17,7 @@ const BillCard = ({ billflag, setbillflag, user, BillData, thememode }) => {
 
   const { title, amount, toWhom, dueDate } = BillInput;
 
-  {/*-----------------function to handle the bill's input8--------*/ }
+  // -----------------function to handle the bill's input--------
   const handleBillInput = (name) => (e) => {
     setBillInput({ ...BillInput, [name]: e.target.value });
   };
@@ -74,17 +74,15 @@ const BillCard = ({ billflag, setbillflag, user, BillData, thememode }) => {
     delBill(id);
   };
 
-  //function to track past due payments
   const paymentTime = () => {
-    let duedate = new Date(BillData.dueDate)
-    let currDate = new Date();
-
-    return currDate > duedate;
+    if (!BillData.dueDate) return false;
+    const dueDate = new Date(BillData.dueDate);
+    return dueDate < new Date();
   };
 
   return (
     <>
-      <tr>
+      <tr className={paymentTime() ? 'opacity-50' : ''}>
         <td>{BillData.title}</td>
         <td>&#8377; {BillData.amount}</td>
         <td>{BillData.dueDate?.substring(0, 10)}</td>

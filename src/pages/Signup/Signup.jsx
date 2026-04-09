@@ -79,7 +79,7 @@ function Signup({ user, setUser }) {
   const submitFunction = async (event) => {
     event.preventDefault();
 
-    if (isPass && isUsername && confirmpass == password) {
+    if (isPass && isUsername && confirmpass === password) {
       const Entry = { username: username, password: password, email: email };
       setEntries([entries, Entry]);
 
@@ -104,7 +104,7 @@ function Signup({ user, setUser }) {
         console.log(confirmpass);
         alert("Logged in successfully");
       } catch (err) {
-        if (err.response && err.response.status == 400) {
+        if (err.response && err.response.status === 400) {
           alert("Username already exists. Please choose a different username.");
         } else {
           console.log(err);

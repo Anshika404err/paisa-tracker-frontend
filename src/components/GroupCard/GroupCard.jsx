@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import { Button } from 'react-bootstrap';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
@@ -21,8 +20,6 @@ const ITEM_HEIGHT = 48;
 const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGroup, selectedGroup, thememode, toggle, user, setgroupflag }) => {
   const navigate = useNavigate()
   const theme = useTheme();
-  const [show, setShow] = useState(false);
-  const [showGroupHome, setShowGroupHome] = useState(false);
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [friends, setFriends] = useState([])
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -44,7 +41,7 @@ const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGro
 
   const handleOnChange = (position) => {
     const updatedCheckedState = checkedState.map((item, index) =>
-      index == position ? !item : item
+      index === position ? !item : item
     );
 
     setCheckedState(updatedCheckedState);
@@ -52,10 +49,10 @@ const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGro
   }
 
   useEffect(() => {
-    checkedState.map((item, index) => {
-      if (item == true) setFriends(prev => [...prev, user.friends[index]])
+    checkedState.forEach((item, index) => {
+      if (item === true) setFriends(prev => [...prev, user.friends[index]])
     })
-  }, [checkedState])
+  }, [checkedState, user.friends])
 
   const handleAddFriendsToGroup = async () => {
     try {
@@ -68,38 +65,20 @@ const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGro
       console.log(err)
     }
   }
-  const [copied, setCopied] = useState(false);
   const handleAddFriendClose = () => setShowAddFriend(false);
   const handleAddFriendShow = () => {
     handleCloseDots()
     setShowAddFriend(true);
   }
-  const handleCopyToClipboard = () => {
-    setCopied(true);
-    alert("Copied to clipboard")
-  };
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
-  const handleOpenGroup = () => {
-    console.log("yeeeee")
-    setShowGroupHome(true);
-    setSelectedGroup(groupData);
-  };
-
   const handleDelete = async () => {
     try {
-      const res = await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/group/deleteGroup/${groupData._id}`)
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/group/deleteGroup/${groupData._id}`)
       setgroupflag((prev) => !(prev))
       setShowDeleteModal(false)
     } catch (err) {
       console.log(err)
     }
   }
-  const handlePaid = () => {
-    console.log("clicked")
-  };
-
   const handleopendeletemodal = () => {
     setShowDeleteModal(true)
   }
@@ -114,8 +93,8 @@ const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGro
     <div className='flex justify-center items-center card-parent h-full p-1'>
       <Card sx={{
         minWidth: 275,
-        backgroundColor: thememode == 'dark' ? theme.palette.grey[900] : theme.palette.background.paper,
-        color: thememode == 'dark' ? "white" : "black"
+        backgroundColor: thememode === 'dark' ? theme.palette.grey[900] : theme.palette.background.paper,
+        color: thememode === 'dark' ? "white" : "black"
       }}>
         <CardContent>
           <div className='flex justify-between'>
@@ -131,7 +110,7 @@ const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGro
                 aria-haspopup="true"
                 onClick={handleClick}
                 sx={{
-                  color: thememode == 'dark' ? "white" : "black"
+                  color: thememode === 'dark' ? "white" : "black"
                 }}
               >
                 <MoreVertIcon />
@@ -151,8 +130,8 @@ const GroupCard = ({ key, setgroupData, groupData, allgroupsdata, setSelectedGro
                     width: '20ch',
                   },
                   sx: {
-                    backgroundColor: thememode == 'dark' ? theme.palette.grey[900] : theme.palette.background.paper,
-                    color: thememode == 'dark' ? 'white' : 'black',
+                    backgroundColor: thememode === 'dark' ? theme.palette.grey[900] : theme.palette.background.paper,
+                    color: thememode === 'dark' ? 'white' : 'black',
                     maxHeight: ITEM_HEIGHT * 4.5,
                     width: '20ch',
                   },

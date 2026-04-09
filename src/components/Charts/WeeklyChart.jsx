@@ -21,7 +21,7 @@ const WeeklyChart = ({ weeklyData, thememode }) => {
     expensesBorder: 'rgba(165,42,42,1)',
   };
      // ---------- object according to theme -------------- 
-  const colors = thememode == 'dark' ? darkTheme : lightTheme;
+  const colors = thememode === 'dark' ? darkTheme : lightTheme;
 
   const data = {
     labels: weeklyData?.map((data) => data.date),
@@ -71,7 +71,7 @@ const WeeklyChart = ({ weeklyData, thememode }) => {
   };
 
   return(
-  <div className='w-100 h-auto p-4 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode=='dark'? "#2c3034" : "white"}}>
+  <div className='w-100 h-auto p-4 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode==='dark'? "#2c3034" : "white"}}>
   <p className='w-full text-center font-bold'>Weekly Statistics</p> 
   <Bar data={data} options={options} />
   </div>

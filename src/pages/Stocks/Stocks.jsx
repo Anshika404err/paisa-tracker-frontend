@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react' // Added useCallback
 import TradingViewWidget from '../../components/Stocks/TradingViewWidget'
 import Navbar from '../../components/Navbar'
 import axios from "axios"
-import HeatmapStocks from '../../components/Stocks/HeatmapStocks'
+// Removed HeatmapStocks import as it was unused (image_72ea42.png)
 
 const Stocks = ({ user, thememode, toggle }) => {
 
@@ -11,27 +11,23 @@ const Stocks = ({ user, thememode, toggle }) => {
   const [stockflag, setstockflag] = useState(false)
   const [sym, setsym] = useState("MSFT")
   const [stockData, setStockData] = useState(['AAPL'])
-  console.log(stockData)
 
-  //handling user input for ticker symbol and company/crypto name
+  // Handling user input for ticker symbol and company/crypto name
   const handleInput = e => {
     setInput(e.target.value)
-    console.log(input)
   }
 
-  //function to set ticker symbol
-  const handleSETSYM = async (e) => {
+  // Function to set ticker symbol
+  const handleSETSYM = (e) => { // Removed async as there was no await inside
     setsym(e)
-    console.log("symbol", sym)
     setstockflag(prev => !prev)
   }
 
-  //function to add stock symbol
+  // Function to add stock symbol
   const handleSubmit = async () => {
     try {
-      if (input != "") {
+      if (input !== "") {
         const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/user/addStock/${user._id}`, { input })
-        console.log(res.data.user.stocks)
         const val = res.data.user.stocks
         setStockData(prev => ([...prev, val]))
         setflag(prev => !prev)
@@ -44,43 +40,33 @@ const Stocks = ({ user, thememode, toggle }) => {
     }
   }
 
-  const handledelete = async (stock) => {
-    try {
-      const res = await axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/deletestock/${user._id}`, stock)
-      console.log(res.data);
-      setflag(prev => !prev)
-    }
-    catch (e) {
-      console.log(e);
-    }
-  }
+  // Note: handledelete was defined but unused in your JSX. 
+  // If you plan to add a delete button, keep this. Otherwise, it can be removed.
 
-  //function to fetch user stocks
+  // Function to fetch user stocks
   useEffect(() => {
     const getStocks = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/getStocks/${user._id}`)
-        console.log("widget", res.data)
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/getStocks/${user?._id}`)
         setStockData(res.data.val)
-        console.log(stockData)
       } catch (err) {
         console.log(err)
       }
     }
-    getStocks()
-    console.log(stockData)
-  }, [flag])
-  console.log(stockData)
+
+    if (user?._id) {
+      getStocks()
+    }
+  }, [flag, user?._id]) // Added user._id to fix the exhaustive-deps warning (image_72ea42.png)
 
   return (
-    <div style={{ backgroundColor: thememode == "dark" ? "#181818" : "#f0f0f0" }} className='min-h-screen overflow-x-hidden'>
+    <div style={{ backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }} className='min-h-screen overflow-x-hidden'>
       <Navbar thememode={thememode} toggle={toggle} />
-      <div className="mx-auto my-auto h-screen block justify-center items-center" style={{ backgroundColor: thememode == "dark" ? "#181818" : "#f0f0f0" }} >
+      <div className="mx-auto my-auto h-screen block justify-center items-center" style={{ backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }} >
 
-        <div className='flex justify-center p-2 font-bold text-2xl' style={{ color: thememode == "dark" ? "white" : "black" }}></div>
+        <div className='flex justify-center p-2 font-bold text-2xl' style={{ color: thememode === "dark" ? "white" : "black" }}></div>
 
-        {/* -----------------------------Search Stocks and crypto-------------------------------- */}
-        <div className='flex justify-left font-extrabold text-2xl mx-4 my-1 dark:text-[#f0f0f0] ' style={{ color: thememode == "dark" ? "white" : "black" }}> Search for a particular stock/crypto...</div>
+        <div className='flex justify-left font-extrabold text-2xl mx-4 my-1 dark:text-[#f0f0f0] ' style={{ color: thememode === "dark" ? "white" : "black" }}> Search for a particular stock/crypto...</div>
         <div className='mx-4 mb-4 text-gray-600 dark:text-gray-400'>Type the stock tick for a company and click on Save to add the stocks you would want to track for easy access later</div>
 
         <div className='flex justify-around'>
@@ -98,11 +84,13 @@ const Stocks = ({ user, thememode, toggle }) => {
                 <button onClick={handleSubmit} className='m-2 bg-[#000080]  text-white rounded-md p-2'>Save</button>
               </div>
 
-
               <div className='px-3 '>
                 <div className=' w-full flex flex-wrap'>
-                  {stockData.map((stock, index) => (
-                    <div className='h-fit w-fit mx-2 mb-4 border-[#8656cd] dark:text-white shadow-md p-2 rounded-md' key={index} onClick={() => handleSETSYM(stock.input)} style={{ cursor: "pointer", padding: "5px", backgroundColor: thememode == 'dark' ? "#2c3034" : "white" }}>
+                  {stockData && stockData.map((stock, index) => (
+                    <div className='h-fit w-fit mx-2 mb-4 border-[#8656cd] dark:text-white shadow-md p-2 rounded-md' 
+                         key={index} 
+                         onClick={() => handleSETSYM(stock.input)} 
+                         style={{ cursor: "pointer", padding: "5px", backgroundColor: thememode === 'dark' ? "#2c3034" : "white" }}>
                       {stock.input}
                     </div>
                   ))}

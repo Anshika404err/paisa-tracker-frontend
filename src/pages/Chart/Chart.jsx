@@ -5,101 +5,90 @@ import YearlyChart from '../../components/Charts/YearlyChart'
 import axios from 'axios'
 import Navbar from '../../components/Navbar'
 import CategoryChart from '../../components/Charts/CategoryChart'
+
 const Chart = ({ user, setUser, thememode, toggle }) => {
   const [weeklyData, setWeeklyData] = useState([])
   const [monthlyData, setMonthlyData] = useState([])
   const [yearlyData, setYearlyData] = useState([])
   const [allCategories, setAllCategories] = useState([])
-  const [incomeArray, setIncomeArray] = useState([])
-  const [expenseArray, setExpenseArray] = useState([])
+  // incomeArray and expenseArray were removed because they were assigned values but never used
   const [categoryData, setCategoryData] = useState([])
 
   useEffect(() => {
-
-    //local storage
+    // local storage check
     const check = async () => {
       try {
         const loggedInUser = localStorage.getItem("user");
         if (loggedInUser) {
-          console.log(loggedInUser);
           const foundUser = JSON.parse(loggedInUser);
-          console.log("found user", foundUser)
           await setUser(foundUser);
         }
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
-    check()
-
-    //fetching previous week's transaction data
+    
+    // fetching previous week's transaction data
     const getWeeklyData = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/transactions/getWeeklyTransaction/${user._id}`)
-        console.log(res.data.weeklyData)
         setWeeklyData(res.data.weeklyData)
-
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
 
-    //fetching monthly transaction data
+    // fetching monthly transaction data
     const getMonthlyData = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/transactions/getMonthlyTransaction/${user._id}`)
-        console.log("monthly data", res.data.monthlyData)
         setMonthlyData(res.data.monthlyData)
-
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
 
-    //fetching yearly transaction data
+    // fetching yearly transaction data
     const getYearlyData = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/transactions/getYearlyTransaction/${user._id}`)
         setYearlyData(res.data.yearlyData)
-
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
 
-    //fetching category-wise transactions
+    // fetching category-wise transactions
     const getCategory = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/transactions/getCategoryWiseTransaction/${user._id}`)
         const result = res.data
-        setCategoryData(res.data)
-        // Array of all categories
-        const allCategories = result.map(item => item._id);
-        setAllCategories(allCategories)
-        console.log(allCategories)
-
-        // Array of expenses for all categories
-        const expenseArray = result.map(item => item.totalExpense);
-        setExpenseArray(expenseArray)
-
-        // Array of income for all categories
-        const incomeArray = result.map(item => item.totalIncome);
-        setIncomeArray(incomeArray)
+        setCategoryData(result)
+        
+        // Update allCategories state
+        const categories = result.map(item => item._id);
+        setAllCategories(categories)
+        
+        // Note: expenseArray and incomeArray variables were deleted from state 
+        // as they were not being used anywhere in the JSX.
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     }
-    getWeeklyData()
-    getMonthlyData()
-    getYearlyData()
-    getCategory()
-  }, [user._id])
-  console.log(allCategories)
 
-
+    if (user?._id) {
+      check()
+      getWeeklyData()
+      getMonthlyData()
+      getYearlyData()
+      getCategory()
+    }
+    // Added setUser to the dependency array to satisfy exhaustive-deps
+  }, [user._id, setUser]) 
 
   return (
-    <div style={{ backgroundColor: thememode == "dark" ? "#181818" : "#f0f0f0" }} className='min-h-screen overflow-x-hidden'>
+    // Changed '==' to '===' for strict equality comparison
+    <div style={{ backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }} className='min-h-screen overflow-x-hidden'>
       {/* ------------ Navbar ------------------------ */}
       <Navbar thememode={thememode} toggle={toggle} />
 
@@ -109,26 +98,23 @@ const Chart = ({ user, setUser, thememode, toggle }) => {
         <div className='mx-4 mb-4 text-gray-600 dark:text-gray-400'>Analyze how much you spent or earned on a weekly, monthly, yearly or category-wise basis</div>
         <div className='flex justify-around p-4'>
           <div className='grid grid-rows-2 grid-cols-2 gap-4'>
-            <div className=''>
+            <div>
               <WeeklyChart weeklyData={weeklyData} thememode={thememode} toggle={toggle} />
             </div>
 
             {/* ------------------------- Monthly Chart -------------------------  */}
-            <div className=''>
+            <div>
               <MonthlyChart monthlyData={monthlyData} thememode={thememode} />
             </div>
-            <div className=''>
+            <div>
               <YearlyChart yearlyData={yearlyData} thememode={thememode} />
             </div>
           </div>
 
-
-
-          {/* ---------------------------------------------------------Category chart---------------------------------------------------------- */}
+          {/* ------------------------- Category chart ------------------------- */}
           <div className='flex align-middle'>
             <CategoryChart categoryData={categoryData} allCategories={allCategories} thememode={thememode} toggle={toggle} />
           </div>
-
         </div>
       </div>
     </div>
