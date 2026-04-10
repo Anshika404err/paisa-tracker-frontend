@@ -27,14 +27,12 @@ function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [navuser, setNavuser] = useState({});
 
-  // ✅ FIX — run once, guard setUser before calling
   useEffect(() => {
     try {
       const loggedInUser = localStorage.getItem("user");
       if (loggedInUser) {
         const foundUser = JSON.parse(loggedInUser);
         setNavuser(foundUser);
-        // ✅ Only call setUser if it was actually passed as a prop
         if (!user?._id && typeof setUser === 'function') {
           setUser(foundUser);
         }
@@ -42,7 +40,8 @@ function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
     } catch (err) {
       console.error(err);
     }
-  }, []); // ✅ empty deps — run once on mount only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);

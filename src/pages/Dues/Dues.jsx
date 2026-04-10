@@ -23,7 +23,6 @@ function Dues({ user, thememode, toggle, setUser }) {
   const [BillData, setBillData] = useState([]);
   const [errorMessageAdd, setErrorMessageAdd] = useState("");
 
-  // ✅ FIX 1 — moved currency fetch OUT of a nested function into a proper useEffect
   const [currenciData, setCurrenciData] = useState({});
 
   useEffect(() => {
@@ -121,6 +120,7 @@ function Dues({ user, thememode, toggle, setUser }) {
     } catch (err) {
       console.log(err);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
