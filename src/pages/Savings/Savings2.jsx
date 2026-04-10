@@ -151,30 +151,19 @@ function Savings2({ user, setUser, thememode, toggle }) {
   }, [user?._id]);
 
   useEffect(() => {
-    const check = async () => {
-      const loggedInUser = localStorage.getItem("user");
-      if (loggedInUser) {
-        const foundUser = JSON.parse(loggedInUser);
-        setUser(foundUser);
-      }
-    };
-    check();
-
-    const getSavings = async () => {
-      if (!user?._id) return;
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/savings/getSavings/${user._id}`);
-        setSavingData(res.data.savings);
-        const numberOfSavings = res.data.savings.filter(s => s.currAmt >= s.targetAmt).length;
-        if (numberOfSavings === 5) {
-          addBadge('JLLAW.png');
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getSavings();
-  }, [user?._id, updateFlag, setUser, addBadge]);
+  const getSavings = async () => {
+    if (!user?._id) return;
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/savings/getSavings/${user._id}`);
+      setSavingData(res.data.savings);
+      const numberOfSavings = res.data.savings.filter(s => s.currAmt >= s.targetAmt).length;
+      if (numberOfSavings === 5) addBadge('JLLAW.png');
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  getSavings();
+}, [user?._id, updateFlag, addBadge]);
 
   const handleDelete = async () => {
     try {
@@ -188,7 +177,7 @@ function Savings2({ user, setUser, thememode, toggle }) {
 
   return (
     <div style={{ backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }} className="min-h-full overflow-x-hidden">
-      <Navbar thememode={thememode} toggle={toggle} />
+     <Navbar thememode={thememode} toggle={toggle} setUser={setUser} user={user} />
       <div className="outer min-h-screen w-full" style={{ color: thememode === "dark" ? "white" : "black", backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }}>
         <div className='font-extrabold text-2xl mx-4 mt-4 decoration-[#000080] dark:text-[#f0f0f0]'>Savings Tracker</div>
         <div className='mx-4 text-gray-600 dark:text-gray-200'>Have any financial goals? Track them here!</div>

@@ -7,9 +7,9 @@ import { AiFillEdit, AiFillDelete } from 'react-icons/ai';
 import Modal from 'react-bootstrap/Modal';
 
 function Dues({ user, thememode, toggle, setUser }) {
-  const [billflag, setbillflag] = useState(false)
+  const [billflag, setbillflag] = useState(false);
   const [selecteddue, setselecteddue] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [dueItem, setdueItem] = useState({
     userId: user._id,
     title: '',
@@ -20,29 +20,42 @@ function Dues({ user, thememode, toggle, setUser }) {
     currency: 'inr'
   });
 
+  const [BillData, setBillData] = useState([]);
+  const [errorMessageAdd, setErrorMessageAdd] = useState("");
+
+  // ✅ FIX 1 — moved currency fetch OUT of a nested function into a proper useEffect
+  const [currenciData, setCurrenciData] = useState({});
+
+  useEffect(() => {
+    const fetchCurrency = async () => {
+      try {
+        const response = await fetch(
+          `https://api.freecurrencyapi.com/v1/latest?apikey=LQvy3LtRMZSLNj7WvwKX3tPoA37h6FdzWNaLbw4f&currencies=INR%2CMXN%2CSEK%2CCHF%2CSGD%2CHKD%2CCNY%2CCAD%2CAUD%2CJPY%2CGBP%2CEUR%2CUSD%2CCAD&base_currency=INR`
+        );
+        const result = await response.json();
+        setCurrenciData(result.data);
+      } catch (error) {
+        console.error('Error fetching currency data:', error);
+      }
+    };
+    fetchCurrency();
+  }, []);
+
   const capitalizeFirstLetter = (string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
-  const [BillData, setBillData] = useState([]);
-  const [errorMessageAdd, setErrorMessageAdd] = useState("");
-
-  // ---------------input ----------------------- 
   const handleBillInput = (name) => (e) => {
     if (name === 'title' || name === 'toWhom') {
-      const capitalizedTitle = capitalizeFirstLetter(e.target.value);
-      setdueItem({ ...dueItem, [name]: capitalizedTitle });
-    }
-    else {
+      setdueItem({ ...dueItem, [name]: capitalizeFirstLetter(e.target.value) });
+    } else {
       setdueItem({ ...dueItem, [name]: e.target.value });
     }
   };
 
-  // -----------------function to manage mails ------------------- 
   const mailsendstart = async () => {
     try {
-      const reqmail = user.email;
-      await axios.post(`${process.env.REACT_APP_BASE_URL}/api/mail/sendstartmail`, { reqmail });
+      await axios.post(`${process.env.REACT_APP_BASE_URL}/api/mail/sendstartmail`, { reqmail: user.email });
       alert('Message Sent Successfully');
     } catch (err) {
       console.error('Error sending start mail:', err);
@@ -51,58 +64,47 @@ function Dues({ user, thememode, toggle, setUser }) {
 
   const mailsendrecurring = async (recurringType) => {
     try {
-      const reqmail = user.email;
-      const duedate = dueItem.dueDate;
-      await axios.post(`${process.env.REACT_APP_BASE_URL}/api/mail/sendmailrecurring`, { reqmail, duedate, recurring: recurringType });
+      await axios.post(`${process.env.REACT_APP_BASE_URL}/api/mail/sendmailrecurring`, {
+        reqmail: user.email,
+        duedate: dueItem.dueDate,
+        recurring: recurringType
+      });
     } catch (err) {
       console.error('Error sending recurring mail:', err);
     }
   };
 
-  // ----------------------- Submit ------------------- 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Currency conversion logic
-    const currencysmall = dueItem.currency.toUpperCase();
-    const conversionRate = currenciData && currenciData[currencysmall] ? currenciData[currencysmall] : 1;
-    const finalAmount = Math.floor(dueItem.amount / conversionRate);
 
     if (dueItem.amount === '' || dueItem.title === '' || dueItem.toWhom === '' || dueItem.dueDate === '') {
       setErrorMessageAdd("All entries should be filled");
       return;
     }
 
+    const currencysmall = dueItem.currency.toUpperCase();
+    const conversionRate = currenciData && currenciData[currencysmall] ? currenciData[currencysmall] : 1;
+    const finalAmount = Math.floor(dueItem.amount / conversionRate);
+
     try {
-      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/bills/addBill`, { 
-        dueItem: { ...dueItem, amount: finalAmount } 
+      const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/bills/addBill`, {
+        dueItem: { ...dueItem, amount: finalAmount }
       });
-      
-      const val = res.data.bill;
-      setBillData((prev) => [...prev, val]);
+
+      setBillData((prev) => [...prev, res.data.bill]);
       mailsendstart();
 
-      // Fix: Date comparison logic
       const currdate = new Date();
       const duedate = new Date(dueItem.dueDate);
-      
       if (
-        currdate.getFullYear() === duedate.getFullYear() && 
-        currdate.getMonth() === duedate.getMonth() && 
+        currdate.getFullYear() === duedate.getFullYear() &&
+        currdate.getMonth() === duedate.getMonth() &&
         currdate.getDate() === duedate.getDate()
       ) {
         mailsendrecurring(dueItem.recurring);
       }
 
-      setdueItem({
-        userId: user._id,
-        title: '',
-        dueDate: '',
-        amount: '',
-        toWhom: '',
-        recurring: 'daily',
-        currency: 'inr'
-      });
+      setdueItem({ userId: user._id, title: '', dueDate: '', amount: '', toWhom: '', recurring: 'daily', currency: 'inr' });
       setErrorMessageAdd("");
     } catch (err) {
       console.log(err.response?.data);
@@ -110,19 +112,16 @@ function Dues({ user, thememode, toggle, setUser }) {
   };
 
   useEffect(() => {
-    const check = async () => {
-      try {
-        const loggedInUser = localStorage.getItem("user");
-        if (loggedInUser) {
-          const foundUser = JSON.parse(loggedInUser);
-          setUser(foundUser);
-        }
-      } catch (err) {
-        console.log(err)
+    try {
+      const loggedInUser = localStorage.getItem("user");
+      if (loggedInUser) {
+        const foundUser = JSON.parse(loggedInUser);
+        if (typeof setUser === 'function') setUser(foundUser);
       }
+    } catch (err) {
+      console.log(err);
     }
-    check()
-  }, [setUser]); // Added setUser dependency
+  }, []);
 
   useEffect(() => {
     const getBills = async () => {
@@ -133,28 +132,8 @@ function Dues({ user, thememode, toggle, setUser }) {
         console.log(err);
       }
     };
-    if(user._id) getBills();
-  }, [billflag, user._id])
-
-  const UCurrency = (currency) => {
-    const [data, setData] = useState({})
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(`https://api.freecurrencyapi.com/v1/latest?apikey=LQvy3LtRMZSLNj7WvwKX3tPoA37h6FdzWNaLbw4f&currencies=INR%2CMXN%2CSEK%2CCHF%2CSGD%2CHKD%2CCNY%2CCAD%2CAUD%2CJPY%2CGBP%2CEUR%2CUSD%2CCAD&base_currency=INR`);
-          const result = await response.json();
-          setData(result.data);
-        } catch (error) {
-          console.error('Error fetching currency data:', error);
-        }
-      };
-      fetchData();
-    }, [currency]);
-    return data
-  }
-
-  const [currenci] = useState('inr');
-  const currenciData = UCurrency(currenci);
+    if (user._id) getBills();
+  }, [billflag, user._id]);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [show, setShow] = useState(false);
@@ -171,19 +150,17 @@ function Dues({ user, thememode, toggle, setUser }) {
 
   const handleBill = (name) => (e) => {
     if (name === 'titleedit' || name === 'toWhomedit') {
-      const capitalizedTitle = capitalizeFirstLetter(e.target.value);
-      setBill({ ...Bill, [name]: capitalizedTitle });
-    }
-    else {
+      setBill({ ...Bill, [name]: capitalizeFirstLetter(e.target.value) });
+    } else {
       setBill({ ...Bill, [name]: e.target.value });
     }
   };
 
-  const handleClose = () => { setShow(false); setselectedbill(null); setErrorMessage("") }
-  
+  const handleClose = () => { setShow(false); setselectedbill(null); setErrorMessage(""); };
+
   const handleShow = (bill) => {
     setShow(true);
-    setselectedbill(bill)
+    setselectedbill(bill);
     setBill({
       userId: user._id,
       titleedit: bill.title,
@@ -191,7 +168,7 @@ function Dues({ user, thememode, toggle, setUser }) {
       amountedit: bill.amount,
       toWhomedit: bill.toWhom,
     });
-  }
+  };
 
   const handleSubmitBill = (e, obj) => {
     e.preventDefault();
@@ -202,7 +179,7 @@ function Dues({ user, thememode, toggle, setUser }) {
           return;
         }
         await axios.put(`${process.env.REACT_APP_BASE_URL}/api/bills/editBill/${obj._id}`, { Bill });
-        setbillflag((prev) => !(prev))
+        setbillflag((prev) => !prev);
         handleClose();
       } catch (err) {
         console.log(err);
@@ -214,32 +191,32 @@ function Dues({ user, thememode, toggle, setUser }) {
   const handleDelete = async () => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/bills/deleteBill/${selecteddue}`);
-      setbillflag((prev) => !(prev))
-      setShowDeleteModal(false)
+      setbillflag((prev) => !prev);
+      setShowDeleteModal(false);
     } catch (err) {
       console.log(err);
     }
   };
 
   const handleopendeletemodal = (id) => {
-    setShowDeleteModal(true)
-    setselecteddue(id)
-  }
+    setShowDeleteModal(true);
+    setselecteddue(id);
+  };
 
   const handleCloseDeleteModal = () => {
-    setShowDeleteModal(false)
-    setselecteddue(null)
-  }
+    setShowDeleteModal(false);
+    setselecteddue(null);
+  };
 
   return (
     <div style={{ backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }} className='min-h-screen overflow-x-hidden'>
-      <Navbar thememode={thememode} toggle={toggle} />
+      <Navbar thememode={thememode} toggle={toggle} setUser={setUser} user={user} />
       <div className="outer min-h-screen w-full">
         <div className='font-extrabold text-2xl mx-4 mt-4 dark:text-[#f0f0f0]'>Bills and Dues</div>
-        <div className='mx-4 text-gray-600 dark:text-gray-200'>Manage your recurring bills and dues here. Receive reminders through email</div>
+        <div className='mx-4 text-gray-600 dark:text-gray-200'>Manage your recurring bills and dues here.</div>
         <div className="hero-section h-full p-4 flex flex-col md:flex-row gap-4">
-          
-          {/* Hero Left - Form */}
+
+          {/* Form */}
           <div className="hero-left p-4 rounded-lg shadow-md md:w-1/3" style={{ backgroundColor: thememode === 'dark' ? '#2c3034' : 'white', color: thememode === 'dark' ? 'white' : 'black' }}>
             <div className="due mb-3 flex flex-col">
               <label>Title</label>
@@ -263,6 +240,8 @@ function Dues({ user, thememode, toggle, setUser }) {
                 <option value="inr">INR</option>
                 <option value="usd">USD</option>
                 <option value="eur">EUR</option>
+                <option value="gbp">GBP</option>
+                <option value="jpy">JPY</option>
               </select>
             </div>
             <div className="due mb-3 flex flex-col">
@@ -277,7 +256,7 @@ function Dues({ user, thememode, toggle, setUser }) {
             <button className="w-full bg-[#000080] text-white p-2 rounded hover:opacity-90" onClick={handleSubmit}>Add Due</button>
           </div>
 
-          {/* Hero Right - Table */}
+          {/* Table */}
           <div className="hero-right flex-1">
             <div className="overflow-x-auto">
               <Table striped bordered hover variant={thememode === 'dark' ? 'dark' : 'light'}>

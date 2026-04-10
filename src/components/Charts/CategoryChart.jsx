@@ -1,36 +1,60 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title
+} from 'chart.js';
+
+// ✅ Register all required Chart.js components
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title
+);
 
 const CategoryChart = ({ allCategories, categoryData, thememode }) => {
-  const colors = generateColors(allCategories.length, thememode);
-   
 
-  // -------------colors for the lightTheme -------------------- 
+  // ✅ Guard against empty data
+  if (!categoryData || categoryData.length === 0) {
+    return (
+      <div
+        className='w-[400px] h-[200px] p-6 shadow-md rounded-lg flex justify-center items-center text-gray-400 text-sm'
+        style={{ backgroundColor: thememode === 'dark' ? "#2c3034" : "white" }}
+      >
+        No category data available yet.
+      </div>
+    );
+  }
+
+  const colors = generateColors(allCategories.length, thememode);
+
   const lightTheme = {
     colorText: 'black',
-    income: 'rgba(75,192,192,0.5)',
-    incomeBorder: 'rgba(75,192,192,1)',
-    expenses: 'rgba(255,99,132,0.5)',
-    expensesBorder: 'rgba(255,99,132,1)',
   };
-//  ---------------- colors for the darkTheme ----------------------- 
+
   const darkTheme = {
     colorText: 'white',
-    income: 'rgba(34,139,34,0.5)',
-    incomeBorder: 'rgba(34,139,34,1)',
-    expenses: 'rgba(165,42,42,0.5)',
-    expensesBorder: 'rgba(165,42,42,1)',
   };
 
-  // ---------- object according to theme -------------- 
-
   const theme = thememode === 'dark' ? darkTheme : lightTheme;
-  
 
   const data = {
     labels: categoryData.map((data) => data._id),
     datasets: [
-      // ------------- Income ------------------  
       {
         label: 'Income',
         backgroundColor: colors.incomeBackgroundColors,
@@ -38,7 +62,6 @@ const CategoryChart = ({ allCategories, categoryData, thememode }) => {
         borderWidth: 1,
         data: categoryData.map((data) => data.totalIncome),
       },
-      // ------------- Expense ---------------------- 
       {
         label: 'Expenses',
         backgroundColor: colors.expensesBackgroundColors,
@@ -49,29 +72,9 @@ const CategoryChart = ({ allCategories, categoryData, thememode }) => {
     ],
   };
 
-
- 
   const options = {
     maintainAspectRatio: false,
     responsive: true,
-    height: 300,
-    width: 300,
-  };
-
-  // ----------- using the pre-existing obj to set the properties of chart ----------- 
-  const option = {
-    scales: {
-      x: {
-        ticks: {
-          color: theme.colorText,
-        },
-      },
-      y: {
-        ticks: {
-          color: theme.colorText,
-        },
-      },
-    },
     plugins: {
       legend: {
         labels: {
@@ -81,19 +84,21 @@ const CategoryChart = ({ allCategories, categoryData, thememode }) => {
     },
   };
 
-  // ------------ Pie Chart component --------------------- 
-
   return (
-  <div className='w-[400px] h-[500px] p-6 shadow-md rounded-lg dark:text-white m-auto' style={{backgroundColor:thememode==='dark'? "#2c3034" : "white"}}>
-  <p className='w-full text-center font-bold'>Category wise data</p>
-  <Pie data={data} options={options} option={option} />
-  </div>
-  )
+    <div
+      className='w-[400px] h-[500px] p-6 shadow-md rounded-lg m-auto'
+      style={{ backgroundColor: thememode === 'dark' ? "#2c3034" : "white" }}
+    >
+      <p className='w-full text-center font-bold' style={{ color: theme.colorText }}>
+        Category wise data
+      </p>
+      <Pie data={data} options={options} />
+    </div>
+  );
 };
 
 export default CategoryChart;
 
-// Function to generate dynamic colors
 const generateColors = (count, thememode) => {
   const backgroundColors = [];
   const borderColors = [];
