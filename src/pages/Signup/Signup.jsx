@@ -34,33 +34,34 @@ function Signup({ setUser }) {
   };
 
   const submitFunction = async (event) => {
-    event.preventDefault();
-    const { username, email, password, confirmPass } = formData;
-    const isUsernameValid = username.length >= 5;
-    const isPasswordValid = password.length >= 8;
-    const isMatch = password === confirmPass;
+  event.preventDefault();
+  const { username, email, password, confirmPass } = formData;
 
-    if (isUsernameValid && isPasswordValid && isMatch) {
-      try {
-        const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/auth/signup`, {
-          username, email, password
-        });
-        if (res.data) {
-          setUser(res.data.newUser);
-          localStorage.setItem('user', JSON.stringify(res.data.newUser));
-          alert("Account created successfully!");
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        console.error("AXIOS ERROR:", err);
-        alert(err.response?.data?.message || "User already exists or invalid data.");
-      }
+  if (username.length < 5) return alert("Username must be at least 5 characters.");
+  if (password.length < 8) return alert("Password must be at least 8 characters.");
+  if (password !== confirmPass) return alert("Passwords do not match!");
+
+  try {
+    const res = await axios.post(`${process.env.REACT_APP_BASE_URL}/api/auth/signup`, {
+      username, email, password
+    });
+
+    // Handle both response shapes: res.data.newUser OR res.data directly
+    const userData = res.data.newUser || res.data;
+
+    if (userData && userData._id) {
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      alert("Account created successfully!");
+      navigate('/dashboard');
     } else {
-      if (!isMatch) alert("Passwords do not match!");
-      else if (!isUsernameValid) alert("Username must be at least 5 characters.");
-      else if (!isPasswordValid) alert("Password must be at least 8 characters.");
+      alert("Signup failed. Please try again.");
     }
-  };
+  } catch (err) {
+    console.error("AXIOS ERROR:", err);
+    alert(err.response?.data?.message || "User already exists or invalid data.");
+  }
+};
 
   return (
     <div className="super-container">

@@ -10,7 +10,7 @@ const Stocks = ({ user, thememode, toggle }) => {
   const [flag, setflag] = useState(false)
   const [stockflag, setstockflag] = useState(false)
   const [sym, setsym] = useState("MSFT")
-  const [stockData, setStockData] = useState(['AAPL'])
+  const [stockData, setStockData] = useState([{ input: 'AAPL' }]);
 
   // Handling user input for ticker symbol and company/crypto name
   const handleInput = e => {

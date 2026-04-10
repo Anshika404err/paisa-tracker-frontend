@@ -105,7 +105,7 @@ const TransactionCard = ({ user, transactionData, thememode, setUpdateFlag }) =>
 
             <Card.Text
               className='text-sm md:text-md font-semibold'
-              style={{ color: transactionData.type === "expense" ? 'red' : 'green' }}
+              style={{ color: transactionData.type?.toLowerCase() === "expense" ? 'red' : 'green' }}
             >
               ₹ {transactionData.amount}
             </Card.Text>

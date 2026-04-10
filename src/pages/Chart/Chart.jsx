@@ -85,7 +85,7 @@ const Chart = ({ user, setUser, thememode, toggle }) => {
     }
     // Added setUser to the dependency array to satisfy exhaustive-deps
   }, [user._id, setUser]) 
-
+if (!user) return <div className="p-10 text-center">Loading User Data...</div>;
   return (
     // Changed '==' to '===' for strict equality comparison
     <div style={{ backgroundColor: thememode === "dark" ? "#181818" : "#f0f0f0" }} className='min-h-screen overflow-x-hidden'>

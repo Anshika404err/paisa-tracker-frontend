@@ -31,21 +31,22 @@ function ResponsiveAppBar({ thememode, toggle, setUser, user, setFlag, flag }) {
   const [navuser, setNavuser] = useState({});
 
   // ✅ user sync
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const loggedInUser = localStorage.getItem("user");
-        if (loggedInUser) {
-          const foundUser = JSON.parse(loggedInUser);
-          setNavuser(foundUser);
-          setUser(foundUser);
-        }
-      } catch (err) {
-        console.error(err);
+  // ✅ Run only once on mount, don't put user._id in deps
+useEffect(() => {
+  try {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setNavuser(foundUser);
+      // Only set if user isn't already loaded
+      if (!user?._id) {
+        setUser(foundUser);
       }
-    };
-    check();
-  }, [user?._id, flag]);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}, [setUser, user?._id]); // ← empty deps, run once on mount only
 
   // -------- handlers ----------
   const handleOpenNavMenu = (event) => {
